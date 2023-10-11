@@ -5,18 +5,26 @@ from fastapi.responses import JSONResponse
 from DB.database import *
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    description='API para registrar los asistentes a la boda'
-    )
+app = FastAPI(description="API para registrar los asistentes a la boda")
+
+origins = ["invitacion-boda-byj.netlify.app"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 create_tables()
 
+
 class Asistente(BaseModel):
     codigo: Union[str, int]
-
-
-lista_asistentes: list[Asistente] = []
 
 
 @app.get("/")
@@ -24,41 +32,26 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/listar_asistentes")
-def listar_asistentes():
-    try:
-        response = {
-            "status": "ok",
-            "asistentes": lista_asistentes,
-            "total": len(lista_asistentes)
-        }
-        return JSONResponse(content=response, status_code=200)
-    except Exception as e:
-        response = {
-            "status": "error al listar los asistentes",
-            "message": str(e)
-        }
-        return JSONResponse(content=response, status_code=500)
+@app.get("/list_all")
+def listAssitant():
+    list = get_all()
+    return list
 
 
-@app.post("/registro_asistente")
-def registro_asistentes(asistente: Asistente):
-    try:
-        lista_asistentes.append(asistente.model_dump())
-        response = {
-            "status": "created",
-            "asistente": asistente.model_dump()
-        }
-        return JSONResponse(content=response, status_code=201)
-    except Exception as e:
-        response = {
-            "status": "error",
-            "message": str(e)
-        }
-        return JSONResponse(content=response, status_code=500)
+@app.get("/create")
+def createAssitant():
+    with open("./Lista de invitados1.csv", "r") as file:
+        next(file)
+        for line in file:
+            number_random = random.randint(100, 999)
+            names, telephone, cant_tikets = line.split(",")
+            user = create(names, telephone, cant_tikets, number_random)
+            print(user)
 
-  
-@app.post("/test")
+    return "ok"
+
+
+@app.post("/check_confirmed")
 def test(asistente: Asistente):
     code_user = int(asistente.codigo)
     check_user_confirmed = check_confirmed(code_user)
@@ -68,31 +61,27 @@ def test(asistente: Asistente):
 
         if not is_confirmed:
             response = {
-            "status": "error",
-            "code": code_user,
-            "message": "Codigo ingresado no es valido!",
-        }
+                "status": "error",
+                "user": "No se encontro el usuario",
+                "code": code_user,
+                "message": "¡Código ingresado no es válido!",
+            }
             return JSONResponse(content=response, status_code=404)
-        
+
         response = {
             "status": "ok",
-            "user": '{} {}'.format(is_confirmed.name , is_confirmed.lastname),
+            "user": "{} {}".format(is_confirmed.name, is_confirmed.lastname),
             "code": is_confirmed.code,
-            "message": "Nos alegra saber que quieres compartir con nosotros este gran dia, tu confirmación ha Sido registrada!",
+            "message": "¡Nos alegra saber que quieres compartir con nosotros este gran día, tu confirmación ha sido registrada!",
         }
         return JSONResponse(content=response, status_code=200)
     else:
         response = {
             "status": "ok",
-            "user": '{} {}'.format(check_user_confirmed.name , check_user_confirmed.lastname),
+            "user": "{} {}".format(
+                check_user_confirmed.name, check_user_confirmed.lastname
+            ),
             "code": check_user_confirmed.code,
-            "message": "Se que estas ancioso como nosotros, tu confirmacion ya fue registrada!.",
+            "message": "¡Sabemos que estás ansioso como nosotros, tu confirmación ya fue registrada!",
         }
         return JSONResponse(content=response, status_code=200)
-    
-
-@app.get("/create")
-def createAssitant():
-    user = create()
-    print(user)
-    return 'ok'
