@@ -1,5 +1,6 @@
 
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
@@ -72,7 +73,7 @@ def check_confirmed(_code: int):
                 return response
             
             # Actualizar confirmacion a true
-            data, count = supabase.table('Asistentes').update({"confirmed": True}).match({"code": _code}).execute()
+            data, count = supabase.table('Asistentes').update({"confirmed": True, "confirmation_date": datetime.now()}).match({"code": _code}).execute()
             if len(data[1]) > 0:
                 response = {
                     "status": "ok",
