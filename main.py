@@ -2,7 +2,7 @@ from typing import Union
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 
-from DB.database import *
+from DB.database_supabase import *
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,8 +20,6 @@ app.add_middleware(
 )
 
 
-create_tables()
-
 
 class Asistente(BaseModel):
     codigo: Union[str, int]
@@ -38,22 +36,12 @@ def listAssitant():
     return list
 
 
-@app.get("/create")
-def createAssitant():
-    with open("./Lista de invitados1.csv", "r") as file:
-        next(file)
-        for line in file:
-            number_random = random.randint(100, 999)
-            names, telephone, cant_tikets = line.split(",")
-            user = create(names, telephone, cant_tikets, number_random)
-            print(user)
-
-    return "ok"
-
-
 @app.post("/check_confirmed")
 def test(asistente: Asistente):
     code_user = int(asistente.codigo)
+    responseApi = check_confirmed(code_user)
+    return responseApi
+    """ code_user = int(asistente.codigo)
     check_user_confirmed = check_confirmed(code_user)
 
     if not check_user_confirmed:
@@ -84,4 +72,4 @@ def test(asistente: Asistente):
             "code": check_user_confirmed.code,
             "message": "¡Sabemos que estás ansioso como nosotros, tu confirmación ya fue registrada!",
         }
-        return JSONResponse(content=response, status_code=200)
+        return JSONResponse(content=response, status_code=200) """
