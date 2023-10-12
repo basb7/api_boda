@@ -70,7 +70,7 @@ def test(asistente: Asistente):
 
         response = {
             "status": "ok",
-            "user": "{} {}".format(is_confirmed.names),
+            "user": "{}".format(is_confirmed.names),
             "code": is_confirmed.code,
             "message": "¡Nos alegra saber que quieres compartir con nosotros este gran día, tu confirmación ha sido registrada!",
         }
@@ -78,7 +78,7 @@ def test(asistente: Asistente):
     else:
         response = {
             "status": "ok",
-            "user": "{} {}".format(
+            "user": "{}".format(
                 check_user_confirmed.names
             ),
             "code": check_user_confirmed.code,
