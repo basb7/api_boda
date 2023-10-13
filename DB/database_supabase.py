@@ -102,4 +102,3 @@ def get_all():
         print(e)
         return False
     
-print(check_confirmed(123))
