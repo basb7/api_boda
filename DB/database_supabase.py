@@ -73,7 +73,7 @@ def check_confirmed(_code: int):
                 return response
             
             # Actualizar confirmacion a true
-            data, count = supabase.table('Asistentes').update({"confirmed": True, "confirmation_date": datetime.now()}).match({"code": _code}).execute()
+            data, count = supabase.table('Asistentes').update({"confirmed": True, "confirmation_date": '{}'.format(datetime.now())}).match({"code": _code}).execute()
             if len(data[1]) > 0:
                 response = {
                     "status": "ok",
@@ -102,3 +102,4 @@ def get_all():
         print(e)
         return False
     
+print(check_confirmed(123))
